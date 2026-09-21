@@ -76,6 +76,10 @@ export const api = {
     return res.json();
   },
 
+    async clearDemoData(): Promise<void> {
+    const res = await fetch(`${API_BASE}/events/clear-demo-data`, { method: 'POST' });
+    if (!res.ok) throw new Error('Failed to clear demo data');
+  },
   async deleteEvent(id: number): Promise<void> {
     const res = await fetch(`${API_BASE}/events/${id}`, { method: 'DELETE' });
     if (!res.ok) throw new Error('Failed to delete event');

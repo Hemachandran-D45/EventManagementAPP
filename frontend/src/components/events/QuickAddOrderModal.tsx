@@ -28,7 +28,7 @@ export const QuickAddOrderModal: React.FC<Props> = ({ isOpen, onClose, onOrderCr
   const [eventDate, setEventDate] = useState(new Date().toISOString().split('T')[0]);
   const [eventTime, setEventTime] = useState('7:00 PM');
   const [venue, setVenue] = useState('');
-  const [location, setLocation] = useState('Trichy');
+  const [location, setLocation] = useState('');
 
   const [services, setServices] = useState<SelectedServiceState[]>([]);
   const [discount, setDiscount] = useState<number>(0);
@@ -154,7 +154,7 @@ export const QuickAddOrderModal: React.FC<Props> = ({ isOpen, onClose, onOrderCr
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Rajesh Kumar"
+                  placeholder="Enter customer name"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
@@ -165,7 +165,7 @@ export const QuickAddOrderModal: React.FC<Props> = ({ isOpen, onClose, onOrderCr
                 <input
                   type="tel"
                   required
-                  placeholder="e.g. 9876543210"
+                  placeholder="Enter 10-digit mobile number"
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
@@ -229,7 +229,7 @@ export const QuickAddOrderModal: React.FC<Props> = ({ isOpen, onClose, onOrderCr
                 <input
                   type="text"
                   required
-                  placeholder="e.g. SRM Grand Mahal"
+                  placeholder="Enter venue / hall name"
                   value={venue}
                   onChange={(e) => setVenue(e.target.value)}
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
@@ -239,7 +239,7 @@ export const QuickAddOrderModal: React.FC<Props> = ({ isOpen, onClose, onOrderCr
                 <label className="block text-[11px] font-semibold text-slate-400 mb-1">City / Location</label>
                 <input
                   type="text"
-                  placeholder="e.g. Trichy"
+                  placeholder="Enter city / location"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"

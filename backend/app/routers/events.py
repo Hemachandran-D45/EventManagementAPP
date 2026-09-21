@@ -220,3 +220,17 @@ def delete_event(event_id: int, db: Session = Depends(get_db)):
     db.delete(ev)
     db.commit()
     return {"message": "Event deleted successfully"}
+
+@router.post("/clear-demo-data")
+def clear_demo_data(db: Session = Depends(get_db)):
+    from app.models.entities import Payment, Expense, EventService, Task, Attachment, Invoice, Event, Customer
+    db.query(Payment).delete()
+    db.query(Expense).delete()
+    db.query(EventService).delete()
+    db.query(Task).delete()
+    db.query(Attachment).delete()
+    db.query(Invoice).delete()
+    db.query(Event).delete()
+    db.query(Customer).delete()
+    db.commit()
+    return {"message": "All demo orders and customers have been cleared. Clean slate ready."}

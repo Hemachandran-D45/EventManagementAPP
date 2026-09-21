@@ -47,7 +47,7 @@ export const SearchPage: React.FC<Props> = ({ isOpen, onClose, onSelectEvent }) 
           <input
             type="text"
             autoFocus
-            placeholder="Search Rajesh, 98765, Wedding, DJ, Trichy..."
+            placeholder="Search customer, venue, phone, service..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="w-full bg-transparent text-sm sm:text-base text-white placeholder-slate-500 focus:outline-none"

@@ -1,4 +1,4 @@
-﻿import os
+import os
 import pytest
 from fastapi.testclient import TestClient
 import sys
@@ -73,13 +73,17 @@ def test_quick_order_creation_and_balance():
     assert updated_ev["balance_due"] == 0.0
 
 def test_invoice_pdf_and_whatsapp():
-    # Use first event
-    response = client.get("/api/billing/invoice/1/pdf")
+    # Use existing event from previous tests
+    events = client.get("/api/events").json()
+    assert len(events) > 0
+    event_id = events[0]["id"]
+    
+    response = client.get(f"/api/billing/invoice/{event_id}/pdf")
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/pdf"
     assert len(response.content) > 1000
 
-    wa_resp = client.get("/api/billing/whatsapp/1")
+    wa_resp = client.get(f"/api/billing/whatsapp/{event_id}")
     assert wa_resp.status_code == 200
     wa_data = wa_resp.json()
     assert "confirmation" in wa_data
@@ -87,11 +91,12 @@ def test_invoice_pdf_and_whatsapp():
     assert "https://wa.me/" in wa_data["bill"]["url"]
 
 def test_global_search():
-    response = client.get("/api/search?q=Rajesh")
+    # Search for customer created in previous test
+    response = client.get("/api/search?q=Karthik")
     assert response.status_code == 200
     results = response.json()
     assert len(results["customers"]) >= 1
-    assert results["customers"][0]["name"] == "Rajesh Kumar"
+    assert "Karthik" in results["customers"][0]["name"]
 
 def test_finance_summary():
     response = client.get("/api/finance/summary")

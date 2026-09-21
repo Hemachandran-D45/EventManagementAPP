@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Calendar, Clock, AlertTriangle, CheckCircle2, ChevronRight,
   PlusCircle, Sparkles, AlertCircle, ArrowUpRight, ShieldAlert,
@@ -50,12 +50,31 @@ export const DashboardPage: React.FC<Props> = ({ onOpenQuickAdd, onSelectEvent, 
           <h2 className="text-lg font-extrabold text-white tracking-tight">Today's Command Hub</h2>
           <p className="text-xs text-slate-400">"What do I need to know today?"</p>
         </div>
-        <button
-          onClick={onOpenServices}
-          className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold bg-emerald-950/40 border border-emerald-500/30 px-2.5 py-1 rounded-lg"
-        >
-          Catalog & Rates
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={async () => {
+              if (window.confirm("Do you want to clear all demo/dummy orders and start 100% fresh?")) {
+                try {
+                  await api.clearDemoData();
+                  loadDashboard();
+                  alert("Demo data cleared successfully! Clean slate ready.");
+                } catch (e) {
+                  alert("Failed to clear demo data.");
+                }
+              }
+            }}
+            className="text-xs text-rose-400 hover:text-rose-300 font-semibold bg-rose-950/40 border border-rose-500/30 px-2.5 py-1 rounded-lg transition-colors"
+            title="Clear all demo orders & customers"
+          >
+            Clear Demo Data
+          </button>
+          <button
+            onClick={onOpenServices}
+            className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold bg-emerald-950/40 border border-emerald-500/30 px-2.5 py-1 rounded-lg transition-colors"
+          >
+            Catalog & Rates
+          </button>
+        </div>
       </div>
 
       {/* Hero Metric Cards */}
