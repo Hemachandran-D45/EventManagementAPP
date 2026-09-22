@@ -7,7 +7,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
 
-def generate_invoice_pdf(event, company_name="DD EVENTS & ENTERTAINMENT", contact_phone="+91 99401 23456"):
+def generate_invoice_pdf(event, company_name="DD EVENTS & ENTERTAINMENT", contact_phone="+91 78680 80950 / +91 93633 16800"):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         buffer,
@@ -195,7 +195,8 @@ def generate_invoice_pdf(event, company_name="DD EVENTS & ENTERTAINMENT", contac
             Paragraph(
                 "<b>Payment Terms & Methods:</b><br/>"
                 "• Accepted: UPI / Cash / NEFT / IMPS<br/>"
-                "• UPI ID: <b>ddevents@upi</b><br/>"
+                "• UPI ID: <b>9363316800@upi</b> (GPay / PhonePe / Paytm)<br/>"
+                "• Contact: +91 78680 80950 / +91 93633 16800<br/>"
                 "• Please settle the remaining balance before or on the event day.<br/>"
                 "• Thank you for celebrating with DD Events! <i>One Team • One Beat • One Passion</i>",
                 cell_normal

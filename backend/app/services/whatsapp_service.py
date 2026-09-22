@@ -32,8 +32,9 @@ def get_whatsapp_confirmation_text(event):
         f"------------------------------------\n"
         f"{financials}\n"
         f"------------------------------------\n\n"
+        f"💳 *UPI ID:* 9363316800@upi (GPay / PhonePe / Paytm)\n"
+        f"📞 *Helpline / Updates:* +91 78680 80950 / +91 93633 16800\n\n"
         f"We are excited to deliver a high-energy, memorable event!\n"
-        f"For songs, cues, or updates, feel free to contact us.\n"
         f"— *Team DD Events*"
     )
     return text
@@ -70,7 +71,8 @@ def get_whatsapp_bill_text(event):
         f"------------------------------------\n"
         f"{financials}\n"
         f"------------------------------------\n"
-        f"UPI ID: ddevents@upi\n"
+        f"💳 *UPI ID:* 9363316800@upi (GPay / PhonePe / Paytm)\n"
+        f"📞 *Contact:* +91 78680 80950 / +91 93633 16800\n"
         f"Thank you for choosing DD Events!\n"
         f"_\"One Team • One Beat • One Passion\"_"
     )
@@ -84,7 +86,8 @@ def get_whatsapp_payment_reminder_text(event):
         f"💰 *Total Amount:* Rs. {event.total_amount:,.0f}\n"
         f"💵 *Paid So Far:* Rs. {event.advance_paid:,.0f}\n"
         f"💳 *Pending Balance:* Rs. {event.balance_due:,.0f}\n\n"
-        f"Kindly settle via UPI: *ddevents@upi* or Cash / Bank Transfer.\n"
+        f"Kindly settle via UPI: *9363316800@upi* (GPay / PhonePe / Paytm) or Cash / Bank Transfer.\n"
+        f"📞 Contact: +91 78680 80950 / +91 93633 16800\n"
         f"Thank you!\n"
         f"— *DD Events Management*"
     )
@@ -103,6 +106,7 @@ def get_whatsapp_crew_text(event):
         f"------------------------------------\n"
         f"*Crew & Service Assignments:*\n{services_list}\n"
         f"------------------------------------\n"
+        f"Lead Contact: +91 78680 80950 / +91 93633 16800\n"
         f"Team DD: Please ensure timely setup, gear check, and professional presentation!"
     )
     return text
