@@ -1,9 +1,10 @@
 import io
+import os
 from datetime import datetime
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable, Image as RLImage
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
 
@@ -70,16 +71,39 @@ def generate_invoice_pdf(event, company_name="DD EVENTS & ENTERTAINMENT", contac
 
     story = []
 
+    # Check for DD Events logo
+    logo_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "logo.png")
+    if not os.path.exists(logo_path):
+        logo_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), "frontend", "public", "logo.png")
+
+    logo_img = None
+    if os.path.exists(logo_path):
+        try:
+            logo_img = RLImage(logo_path, width=0.85 * inch, height=0.85 * inch)
+        except Exception:
+            logo_img = None
+
     # Header section
-    header_data = [
-        [
-            Paragraph(f"<b>{company_name}</b><br/><font size=9 color='#64748B'>One Team • One Beat • One Passion<br/>Phone: {contact_phone}</font>", title_style),
-            Paragraph(f"<b>EVENT BILL / INVOICE</b><br/><font size=9 color='#64748B'>Inv #: INV-{event.id:04d}<br/>Date: {datetime.now().strftime('%d-%b-%Y')}</font>", right_header_style)
+    if logo_img:
+        header_data = [
+            [
+                logo_img,
+                Paragraph(f"<b>{company_name}</b><br/><font size=9 color='#64748B'>One Team • One Beat • One Passion<br/>Phone: {contact_phone}</font>", title_style),
+                Paragraph(f"<b>EVENT BILL / INVOICE</b><br/><font size=9 color='#64748B'>Inv #: INV-{event.id:04d}<br/>Date: {datetime.now().strftime('%d-%b-%Y')}</font>", right_header_style)
+            ]
         ]
-    ]
-    header_table = Table(header_data, colWidths=[320, 220])
+        header_table = Table(header_data, colWidths=[70, 270, 200])
+    else:
+        header_data = [
+            [
+                Paragraph(f"<b>{company_name}</b><br/><font size=9 color='#64748B'>One Team • One Beat • One Passion<br/>Phone: {contact_phone}</font>", title_style),
+                Paragraph(f"<b>EVENT BILL / INVOICE</b><br/><font size=9 color='#64748B'>Inv #: INV-{event.id:04d}<br/>Date: {datetime.now().strftime('%d-%b-%Y')}</font>", right_header_style)
+            ]
+        ]
+        header_table = Table(header_data, colWidths=[320, 220])
+
     header_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
     ]))
     story.append(header_table)

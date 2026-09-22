@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Header } from './components/layout/Header';
 import { BottomNav, NavTab } from './components/layout/BottomNav';
 import { InstallPwaModal } from './components/layout/InstallPwaModal';
@@ -36,7 +36,7 @@ export const App: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-3xl w-full mx-auto p-3 sm:p-4 pb-24">
+      <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 lg:p-8 pb-28">
         {currentTab === 'dashboard' && (
           <DashboardPage
             key={refreshTrigger}
