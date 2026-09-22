@@ -1,7 +1,7 @@
 {
-  "name": "Event Business Manager",
-  "short_name": "EventManager",
-  "description": "Private event business operating system",
+  "name": "DD Events Manager",
+  "short_name": "DDEvents",
+  "description": "DD Events Operating System - One Team • One Beat • One Passion",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",

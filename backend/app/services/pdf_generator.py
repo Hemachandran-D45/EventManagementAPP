@@ -7,7 +7,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
 
-def generate_invoice_pdf(event, company_name="EVENT BUSINESS PRO", contact_phone="+91 98765 43210"):
+def generate_invoice_pdf(event, company_name="DD EVENTS & ENTERTAINMENT", contact_phone="+91 99401 23456"):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         buffer,
@@ -73,7 +73,7 @@ def generate_invoice_pdf(event, company_name="EVENT BUSINESS PRO", contact_phone
     # Header section
     header_data = [
         [
-            Paragraph(f"<b>{company_name}</b><br/><font size=9 color='#64748B'>Premium Event Production & Management<br/>Phone: {contact_phone}</font>", title_style),
+            Paragraph(f"<b>{company_name}</b><br/><font size=9 color='#64748B'>One Team • One Beat • One Passion<br/>Phone: {contact_phone}</font>", title_style),
             Paragraph(f"<b>EVENT BILL / INVOICE</b><br/><font size=9 color='#64748B'>Inv #: INV-{event.id:04d}<br/>Date: {datetime.now().strftime('%d-%b-%Y')}</font>", right_header_style)
         ]
     ]
@@ -195,9 +195,9 @@ def generate_invoice_pdf(event, company_name="EVENT BUSINESS PRO", contact_phone
             Paragraph(
                 "<b>Payment Terms & Methods:</b><br/>"
                 "• Accepted: UPI / Cash / NEFT / IMPS<br/>"
-                "• UPI ID: <b>eventmanager@upi</b><br/>"
+                "• UPI ID: <b>ddevents@upi</b><br/>"
                 "• Please settle the remaining balance before or on the event day.<br/>"
-                "• Thank you for choosing us to make your event memorable!",
+                "• Thank you for celebrating with DD Events! <i>One Team • One Beat • One Passion</i>",
                 cell_normal
             )
         ]

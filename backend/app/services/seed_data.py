@@ -13,9 +13,16 @@ DEFAULT_SERVICES = [
     {"name": "High-Definition LED Wall (8x12)", "default_price": 25000.0, "category": "Visuals"},
     {"name": "Professional Photography & Video", "default_price": 22000.0, "category": "Media"},
     {"name": "Floral Stage Decoration", "default_price": 30000.0, "category": "Decor"},
+    {"name": "Bouncer Team (1 Coordinator + 4 Bouncers)", "default_price": 8000.0, "category": "Security"},
 ]
 
 def seed_initial_data(db):
+    # Ensure Bouncer Team is in service catalog
+    bouncer_exists = db.query(Service).filter(Service.name == "Bouncer Team (1 Coordinator + 4 Bouncers)").first()
+    if not bouncer_exists:
+        db.add(Service(name="Bouncer Team (1 Coordinator + 4 Bouncers)", default_price=8000.0, category="Security"))
+        db.commit()
+
     # 1. Automatically wipe legacy demo data if it was seeded in previous runs
     demo_phones = ["9876543210", "9443215678", "9840192837"]
     demo_customers = db.query(Customer).filter(Customer.phone.in_(demo_phones)).all()

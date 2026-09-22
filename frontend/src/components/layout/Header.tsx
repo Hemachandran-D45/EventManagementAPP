@@ -17,12 +17,12 @@ export const Header: React.FC<Props> = ({ onOpenQuickAdd, onOpenSearch, onOpenIn
           </div>
           <div>
             <h1 className="text-base font-bold tracking-tight text-white flex items-center gap-1.5 leading-tight">
-              EVENT PRO
+              DD EVENTS
               <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-semibold px-1.5 py-0.5 rounded border border-emerald-500/30">
-                V1
+                PRO
               </span>
             </h1>
-            <p className="text-[11px] text-slate-400 leading-none">Business Manager</p>
+            <p className="text-[11px] text-slate-400 leading-none">One Team • One Beat • One Passion</p>
           </div>
         </div>
 

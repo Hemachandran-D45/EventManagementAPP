@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Check, Clock, User, Sparkles, Tag } from 'lucide-react';
 import { Service, QuickOrderPayload, PaymentMethod } from '../../types';
 import { api } from '../../services/api';
@@ -25,6 +25,7 @@ export const QuickAddOrderModal: React.FC<Props> = ({ isOpen, onClose, onOrderCr
   const [customerAddress, setCustomerAddress] = useState('');
 
   const [eventType, setEventType] = useState('Wedding');
+  const [customEventType, setCustomEventType] = useState('');
   const [eventDate, setEventDate] = useState(new Date().toISOString().split('T')[0]);
   const [eventTime, setEventTime] = useState('7:00 PM');
   const [venue, setVenue] = useState('');
@@ -79,7 +80,7 @@ export const QuickAddOrderModal: React.FC<Props> = ({ isOpen, onClose, onOrderCr
   const finalTotal = Math.max(0, servicesSubtotal - (discount || 0));
   const balanceDue = Math.max(0, finalTotal - (advanceAmount || 0));
 
-  const eventTypes = ['Wedding', 'Reception', 'Birthday', 'Temple Festival', 'Corporate Gala', 'Sangeet', 'Engagement'];
+  const eventTypes = ['Wedding', 'Reception', 'Birthday', 'Temple Festival', 'Corporate Gala', 'Sangeet', 'Engagement', 'Other'];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,13 +94,15 @@ export const QuickAddOrderModal: React.FC<Props> = ({ isOpen, onClose, onOrderCr
       return;
     }
 
+    const finalEventType = eventType === 'Other' ? (customEventType.trim() || 'Special Occasion') : eventType;
+
     setLoading(true);
     try {
       const payload: QuickOrderPayload = {
         customer_name: customerName.trim(),
         customer_phone: customerPhone.trim(),
         customer_address: customerAddress.trim() || undefined,
-        event_type: eventType,
+        event_type: finalEventType,
         event_date: eventDate,
         event_time: eventTime,
         venue: venue.trim(),
@@ -181,7 +184,7 @@ export const QuickAddOrderModal: React.FC<Props> = ({ isOpen, onClose, onOrderCr
             </h3>
 
             <div>
-              <label className="block text-[11px] font-semibold text-slate-400 mb-1.5">Event Type</label>
+              <label className="block text-[11px] font-semibold text-slate-400 mb-1.5">Event Type / Occasion</label>
               <div className="flex flex-wrap gap-1.5">
                 {eventTypes.map((type) => (
                   <button
@@ -190,7 +193,7 @@ export const QuickAddOrderModal: React.FC<Props> = ({ isOpen, onClose, onOrderCr
                     onClick={() => setEventType(type)}
                     className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition ${
                       eventType === type
-                        ? 'bg-emerald-500 text-slate-950 shadow'
+                        ? 'bg-emerald-500 text-slate-950 font-bold shadow'
                         : 'bg-slate-800 text-slate-300 border border-slate-700 hover:border-slate-500'
                     }`}
                   >
@@ -198,6 +201,19 @@ export const QuickAddOrderModal: React.FC<Props> = ({ isOpen, onClose, onOrderCr
                   </button>
                 ))}
               </div>
+              {eventType === 'Other' && (
+                <div className="mt-2">
+                  <input
+                    type="text"
+                    required
+                    placeholder="Enter custom occasion (e.g. Baby Shower, House Warming, Concert, Anniversary...)"
+                    value={customEventType}
+                    onChange={(e) => setCustomEventType(e.target.value)}
+                    className="w-full bg-slate-900 border border-emerald-500 rounded-xl px-3 py-2 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-400 shadow-inner"
+                    autoFocus
+                  />
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-3">
