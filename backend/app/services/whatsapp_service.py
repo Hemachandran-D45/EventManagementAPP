@@ -111,9 +111,46 @@ def get_whatsapp_crew_text(event):
     )
     return text
 
+def get_whatsapp_quotation_text(event):
+    services_list = "\n".join([f"• {s.service_name} - Rs. {s.agreed_price:,.0f}" for s in event.services])
+    disc = getattr(event, 'discount', 0.0) or 0.0
+
+    if disc > 0:
+        financials = (
+            f"📋 *Services Subtotal:* Rs. {event.services_subtotal:,.0f}\n"
+            f"🎁 *Special Offer / Discount:* -Rs. {disc:,.0f}\n"
+            f"💰 *Estimated Total Amount:* Rs. {event.total_amount:,.0f}"
+        )
+    else:
+        financials = f"💰 *Estimated Total Amount:* Rs. {event.total_amount:,.0f}"
+
+    text = (
+        f"📋 *DD EVENTS - EVENT ESTIMATE & QUOTATION*\n"
+        f"------------------------------------\n"
+        f"Dear *{event.customer.name}*,\n"
+        f"Thank you for inquiring with *DD Events*! Here is the price quotation and plan for your event:\n\n"
+        f"📅 *Date:* {event.event_date}\n"
+        f"⏰ *Time:* {event.event_time or '7:00 PM'}\n"
+        f"📍 *Venue:* {event.venue}" + (f", {event.location}" if event.location else "") + "\n"
+        f"🎭 *Occasion:* {event.event_type}\n\n"
+        f"*Proposed Services & Production:*\n"
+        f"{services_list}\n"
+        f"------------------------------------\n"
+        f"{financials}\n"
+        f"------------------------------------\n"
+        f"⚠️ *Please Note:*\n"
+        f"This is a preliminary price estimate and not a confirmed booking. Dates, equipment & team availability are reserved on a first-come basis upon receipt of booking advance.\n\n"
+        f"To confirm your booking and lock the date, please contact us:\n"
+        f"📞 *Call / WhatsApp:* +91 78680 80950 / +91 93633 16800\n"
+        f"💳 *Advance UPI:* 9363316800@upi\n"
+        f"_DD Events Entertainment • \"One Team • One Beat • One Passion\"_"
+    )
+    return text
+
 def format_whatsapp_link(phone: str, message: str) -> str:
     clean_phone = "".join(filter(str.isdigit, phone))
     if len(clean_phone) == 10:
         clean_phone = "91" + clean_phone
     encoded_text = urllib.parse.quote(message)
     return f"https://wa.me/{clean_phone}?text={encoded_text}"
+

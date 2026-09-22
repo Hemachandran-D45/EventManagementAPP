@@ -1,7 +1,7 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X, Phone, MessageSquare, Calendar, MapPin, CheckSquare,
-  Plus, Download, Share2, Trash2, TrendingUp, UserCheck, Tag
+  Plus, Download, Share2, Trash2, TrendingUp, UserCheck, Tag, FileText
 } from 'lucide-react';
 import { Event, OrderStatus } from '../../types';
 import { api } from '../../services/api';
@@ -413,76 +413,159 @@ export const EventDetailModal: React.FC<Props> = ({ eventId, isOpen, onClose, on
 
             {/* Tab 3: Share & Billing */}
             {activeTab === 'share' && (
-              <div className="space-y-4">
-                <div className="bg-slate-800/80 p-4 rounded-2xl border border-slate-700 flex items-center justify-between">
-                  <div>
-                    <h4 className="font-bold text-white">Event Bill / Invoice PDF</h4>
-                    <p className="text-xs text-slate-400">Professional itemized invoice with discount breakdown & UPI details</p>
+              <div className="space-y-5">
+                {/* 1. Inquiry & Draft Stage: Price Estimate / Quotation */}
+                <div className="bg-slate-800/80 p-4 sm:p-5 rounded-3xl border border-blue-500/30 space-y-3 shadow-md">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] bg-blue-500/20 text-blue-300 font-bold px-2 py-0.5 rounded-full border border-blue-500/30 uppercase tracking-wide">
+                          Inquiry / Draft Stage
+                        </span>
+                        <h4 className="font-extrabold text-white text-sm sm:text-base">Price Estimate & Quotation</h4>
+                      </div>
+                      <p className="text-xs text-slate-400 mt-0.5">Send preliminary quotation to prospective client before booking confirmation</p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={api.getEstimatePdfUrl(event.id)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1.5 px-3 py-2 bg-slate-700/80 hover:bg-slate-600 text-white font-bold rounded-xl text-xs transition border border-slate-600"
+                        title="Download PDF Estimate (EST-...)"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>PDF Estimate</span>
+                      </a>
+                      {waTemplates?.quotation && (
+                        <a
+                          href={waTemplates.quotation.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs transition shadow-md shadow-blue-600/20"
+                        >
+                          <Share2 className="w-3.5 h-3.5" />
+                          <span>WhatsApp Quotation</span>
+                        </a>
+                      )}
+                    </div>
                   </div>
-                  <a
-                    href={api.getInvoicePdfUrl(event.id)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl text-xs transition"
-                  >
-                    <Download className="w-4 h-4 stroke-[2.5]" />
-                    <span>Download PDF</span>
-                  </a>
+
+                  {waTemplates?.quotation && (
+                    <div className="bg-slate-900/80 p-3 rounded-2xl border border-slate-700/60">
+                      <p className="text-xs text-slate-300 font-mono whitespace-pre-line line-clamp-4">
+                        {waTemplates.quotation.text}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
-                {waTemplates && (
-                  <div className="space-y-3">
-                    <h4 className="font-bold text-slate-200">1-Tap WhatsApp Messages</h4>
+                {/* 2. Confirmed Booking: Official Bill & Tax Invoice */}
+                <div className="bg-slate-800/80 p-4 sm:p-5 rounded-3xl border border-slate-700/70 space-y-3 shadow-md">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30 uppercase tracking-wide">
+                          Confirmed Stage
+                        </span>
+                        <h4 className="font-extrabold text-white text-sm sm:text-base">Official Bill & Invoice</h4>
+                      </div>
+                      <p className="text-xs text-slate-400 mt-0.5">Itemized tax invoice with advance received, balance due & UPI details</p>
+                    </div>
 
-                    <div className="p-3 bg-slate-800/60 rounded-xl border border-slate-700/60 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-white text-xs">Send Event Bill to Client</span>
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={api.getInvoicePdfUrl(event.id)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1.5 px-3 py-2 bg-slate-700/80 hover:bg-slate-600 text-white font-bold rounded-xl text-xs transition border border-slate-600"
+                        title="Download PDF Invoice (INV-...)"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>PDF Invoice</span>
+                      </a>
+                      {waTemplates?.bill && (
                         <a
                           href={waTemplates.bill.url}
                           target="_blank"
                           rel="noreferrer"
-                          className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1"
+                          className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition shadow-md shadow-emerald-600/20"
                         >
-                          <Share2 className="w-3.5 h-3.5" /> WhatsApp Bill
+                          <Share2 className="w-3.5 h-3.5" />
+                          <span>WhatsApp Bill</span>
                         </a>
-                      </div>
-                      <p className="text-[11px] text-slate-400 font-mono bg-slate-900/60 p-2 rounded-lg whitespace-pre-line line-clamp-3">
+                      )}
+                    </div>
+                  </div>
+
+                  {waTemplates?.confirmation && (
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-xs text-slate-400">Send formal booking confirmation receipt:</span>
+                      <a
+                        href={waTemplates.confirmation.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 bg-emerald-950/40 px-2.5 py-1 rounded-lg border border-emerald-500/30"
+                      >
+                        <Share2 className="w-3 h-3" /> Booking Confirmed Msg
+                      </a>
+                    </div>
+                  )}
+
+                  {waTemplates?.bill && (
+                    <div className="bg-slate-900/80 p-3 rounded-2xl border border-slate-700/60">
+                      <p className="text-xs text-slate-300 font-mono whitespace-pre-line line-clamp-4">
                         {waTemplates.bill.text}
                       </p>
                     </div>
+                  )}
+                </div>
 
-                    {event.balance_due > 0 && (
-                      <div className="p-3 bg-slate-800/60 rounded-xl border border-slate-700/60 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-rose-300 text-xs">Send Balance Due Reminder</span>
-                          <a
-                            href={waTemplates.payment_reminder.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="px-3 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1"
-                          >
-                            <Share2 className="w-3.5 h-3.5" /> Remind Client
-                          </a>
-                        </div>
-                        <p className="text-[11px] text-slate-400 font-mono bg-slate-900/60 p-2 rounded-lg whitespace-pre-line line-clamp-3">
-                          {waTemplates.payment_reminder.text}
-                        </p>
+                {/* 3. Balance Due Reminder (Conditional) */}
+                {waTemplates && event.balance_due > 0 && (
+                  <div className="bg-slate-800/80 p-4 sm:p-5 rounded-3xl border border-rose-500/30 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-extrabold text-rose-300 text-sm">Send Balance Due Reminder</h4>
+                        <p className="text-xs text-slate-400">Gentle payment reminder for outstanding balance</p>
                       </div>
-                    )}
+                      <a
+                        href={waTemplates.payment_reminder.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-3.5 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-rose-600/20"
+                      >
+                        <Share2 className="w-3.5 h-3.5" /> Remind Client
+                      </a>
+                    </div>
+                    <div className="bg-slate-900/80 p-3 rounded-2xl border border-slate-700/60">
+                      <p className="text-xs text-slate-300 font-mono whitespace-pre-line line-clamp-3">
+                        {waTemplates.payment_reminder.text}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
-                    <div className="p-3 bg-slate-800/60 rounded-xl border border-slate-700/60 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-white text-xs">Send Dispatch Brief to Crew</span>
-                        <a
-                          href={waTemplates.crew_brief.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs font-bold transition flex items-center gap-1"
-                        >
-                          <Share2 className="w-3.5 h-3.5" /> Share with Team
-                        </a>
+                {/* 4. Crew Dispatch Brief */}
+                {waTemplates && (
+                  <div className="bg-slate-800/80 p-4 sm:p-5 rounded-3xl border border-slate-700/70 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-extrabold text-white text-sm">Event Crew Dispatch Brief</h4>
+                        <p className="text-xs text-slate-400">Share venue, sound check, timing & assignments with your team</p>
                       </div>
-                      <p className="text-[11px] text-slate-400 font-mono bg-slate-900/60 p-2 rounded-lg whitespace-pre-line line-clamp-3">
+                      <a
+                        href={waTemplates.crew_brief.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-3.5 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5"
+                      >
+                        <Share2 className="w-3.5 h-3.5" /> Share with Team
+                      </a>
+                    </div>
+                    <div className="bg-slate-900/80 p-3 rounded-2xl border border-slate-700/60">
+                      <p className="text-xs text-slate-300 font-mono whitespace-pre-line line-clamp-3">
                         {waTemplates.crew_brief.text}
                       </p>
                     </div>

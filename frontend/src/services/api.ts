@@ -171,5 +171,9 @@ export const api = {
   // PDF URL
   getInvoicePdfUrl(eventId: number): string {
     return `${API_BASE}/billing/invoice/${eventId}/pdf`;
+  },
+
+  getEstimatePdfUrl(eventId: number): string {
+    return `${API_BASE}/billing/estimate/${eventId}/pdf`;
   }
 };

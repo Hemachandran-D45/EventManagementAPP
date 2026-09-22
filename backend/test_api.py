@@ -83,11 +83,18 @@ def test_invoice_pdf_and_whatsapp():
     assert response.headers["content-type"] == "application/pdf"
     assert len(response.content) > 1000
 
+    est_resp = client.get(f"/api/billing/estimate/{event_id}/pdf")
+    assert est_resp.status_code == 200
+    assert est_resp.headers["content-type"] == "application/pdf"
+    assert len(est_resp.content) > 1000
+
     wa_resp = client.get(f"/api/billing/whatsapp/{event_id}")
     assert wa_resp.status_code == 200
     wa_data = wa_resp.json()
+    assert "quotation" in wa_data
     assert "confirmation" in wa_data
     assert "bill" in wa_data
+    assert "https://wa.me/" in wa_data["quotation"]["url"]
     assert "https://wa.me/" in wa_data["bill"]["url"]
 
 def test_global_search():

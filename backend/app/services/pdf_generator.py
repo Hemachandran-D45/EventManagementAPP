@@ -8,7 +8,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
 
-def generate_invoice_pdf(event, company_name="DD EVENTS & ENTERTAINMENT", contact_phone="+91 78680 80950 / +91 93633 16800"):
+def generate_invoice_pdf(event, company_name="DD EVENTS & ENTERTAINMENT", contact_phone="+91 78680 80950 / +91 93633 16800", doc_type="INVOICE"):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         buffer,
@@ -84,12 +84,16 @@ def generate_invoice_pdf(event, company_name="DD EVENTS & ENTERTAINMENT", contac
             logo_img = None
 
     # Header section
+    is_estimate = (doc_type.upper() == "ESTIMATE")
+    doc_title = "PRICE ESTIMATE / QUOTATION" if is_estimate else "EVENT BILL / INVOICE"
+    doc_number = f"EST-{event.id:04d}" if is_estimate else f"INV-{event.id:04d}"
+
     if logo_img:
         header_data = [
             [
                 logo_img,
                 Paragraph(f"<b>{company_name}</b><br/><font size=9 color='#64748B'>One Team • One Beat • One Passion<br/>Phone: {contact_phone}</font>", title_style),
-                Paragraph(f"<b>EVENT BILL / INVOICE</b><br/><font size=9 color='#64748B'>Inv #: INV-{event.id:04d}<br/>Date: {datetime.now().strftime('%d-%b-%Y')}</font>", right_header_style)
+                Paragraph(f"<b>{doc_title}</b><br/><font size=9 color='#64748B'>Ref #: {doc_number}<br/>Date: {datetime.now().strftime('%d-%b-%Y')}</font>", right_header_style)
             ]
         ]
         header_table = Table(header_data, colWidths=[70, 270, 200])
@@ -97,7 +101,7 @@ def generate_invoice_pdf(event, company_name="DD EVENTS & ENTERTAINMENT", contac
         header_data = [
             [
                 Paragraph(f"<b>{company_name}</b><br/><font size=9 color='#64748B'>One Team • One Beat • One Passion<br/>Phone: {contact_phone}</font>", title_style),
-                Paragraph(f"<b>EVENT BILL / INVOICE</b><br/><font size=9 color='#64748B'>Inv #: INV-{event.id:04d}<br/>Date: {datetime.now().strftime('%d-%b-%Y')}</font>", right_header_style)
+                Paragraph(f"<b>{doc_title}</b><br/><font size=9 color='#64748B'>Ref #: {doc_number}<br/>Date: {datetime.now().strftime('%d-%b-%Y')}</font>", right_header_style)
             ]
         ]
         header_table = Table(header_data, colWidths=[320, 220])
@@ -107,6 +111,25 @@ def generate_invoice_pdf(event, company_name="DD EVENTS & ENTERTAINMENT", contac
         ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
     ]))
     story.append(header_table)
+
+    if is_estimate:
+        estimate_banner = [
+            [
+                Paragraph(
+                    "<b>PRELIMINARY PRICE ESTIMATE / QUOTATION</b> &bull; This estimate is subject to date and equipment availability. Booking is confirmed upon receipt of advance.",
+                    ParagraphStyle('EstBanner', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=8, leading=11, textColor=colors.HexColor("#B45309"))
+                )
+            ]
+        ]
+        b_table = Table(estimate_banner, colWidths=[540])
+        b_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#FEF3C7")),
+            ('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor("#F59E0B")),
+            ('PADDING', (0, 0), (-1, -1), 6),
+        ]))
+        story.append(b_table)
+        story.append(Spacer(1, 10))
+
     story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor("#CBD5E1"), spaceBefore=5, spaceAfter=15))
 
     # Customer & Event Details Block
@@ -214,17 +237,28 @@ def generate_invoice_pdf(event, company_name="DD EVENTS & ENTERTAINMENT", contac
     story.append(Spacer(1, 25))
 
     # Notes & Payment Info
+    if is_estimate:
+        terms_text = (
+            "<b>To Confirm Booking & Reserve Equipment:</b><br/>"
+            "• A booking advance is required to lock event dates, sound, lighting & artist slots.<br/>"
+            "• Advance via UPI: <b>9363316800@upi</b> (GPay / PhonePe / Paytm) or Cash / Bank Transfer.<br/>"
+            "• Helpline: +91 78680 80950 / +91 93633 16800<br/>"
+            "• Remaining balance is settled on or before the event date.<br/>"
+            "• <i>DD Events Entertainment &bull; One Team &bull; One Beat &bull; One Passion</i>"
+        )
+    else:
+        terms_text = (
+            "<b>Payment Terms & Methods:</b><br/>"
+            "• Accepted: UPI / Cash / NEFT / IMPS<br/>"
+            "• UPI ID: <b>9363316800@upi</b> (GPay / PhonePe / Paytm)<br/>"
+            "• Contact: +91 78680 80950 / +91 93633 16800<br/>"
+            "• Please settle the remaining balance before or on the event day.<br/>"
+            "• Thank you for celebrating with DD Events! <i>One Team • One Beat • One Passion</i>"
+        )
+
     payment_info = [
         [
-            Paragraph(
-                "<b>Payment Terms & Methods:</b><br/>"
-                "• Accepted: UPI / Cash / NEFT / IMPS<br/>"
-                "• UPI ID: <b>9363316800@upi</b> (GPay / PhonePe / Paytm)<br/>"
-                "• Contact: +91 78680 80950 / +91 93633 16800<br/>"
-                "• Please settle the remaining balance before or on the event day.<br/>"
-                "• Thank you for celebrating with DD Events! <i>One Team • One Beat • One Passion</i>",
-                cell_normal
-            )
+            Paragraph(terms_text, cell_normal)
         ]
     ]
     p_table = Table(payment_info, colWidths=[540])
