@@ -17,12 +17,6 @@ DEFAULT_SERVICES = [
 ]
 
 def seed_initial_data(db):
-    # Ensure Bouncer Team is in service catalog
-    bouncer_exists = db.query(Service).filter(Service.name == "Bouncer Team (1 Coordinator + 4 Bouncers)").first()
-    if not bouncer_exists:
-        db.add(Service(name="Bouncer Team (1 Coordinator + 4 Bouncers)", default_price=8000.0, category="Security"))
-        db.commit()
-
     # 1. Automatically wipe legacy demo data if it was seeded in previous runs
     demo_phones = ["9876543210", "9443215678", "9840192837"]
     demo_customers = db.query(Customer).filter(Customer.phone.in_(demo_phones)).all()
@@ -40,10 +34,13 @@ def seed_initial_data(db):
             db.delete(cust)
         db.commit()
 
-    # 2. Only seed reusable service templates if catalog is empty
-    # Zero dummy customers or events are created, giving a 100% clean production slate.
-    if db.query(Service).count() == 0:
-        for item in DEFAULT_SERVICES:
-            srv = Service(**item)
-            db.add(srv)
+    # 2. Seed all DEFAULT_SERVICES if not already present in catalog
+    existing_service_names = {s.name for s in db.query(Service.name).all()}
+    services_to_add = [
+        Service(**item) for item in DEFAULT_SERVICES
+        if item["name"] not in existing_service_names
+    ]
+    if services_to_add:
+        db.add_all(services_to_add)
         db.commit()
+

@@ -4,7 +4,7 @@ export type PaymentMethod = 'CASH' | 'UPI' | 'BANK_TRANSFER' | 'OTHER';
 
 export interface Customer {
   id: number;
-  name: str;
+  name: string;
   phone: string;
   address?: string;
   notes?: string;
