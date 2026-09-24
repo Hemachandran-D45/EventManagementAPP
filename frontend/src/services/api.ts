@@ -168,12 +168,18 @@ export const api = {
     return res.json();
   },
 
-  // PDF URL
-  getInvoicePdfUrl(eventId: number): string {
-    return `${API_BASE}/billing/invoice/${eventId}/pdf`;
+  // PDF URLs & Download
+  getInvoicePdfUrl(eventId: number, inline = false): string {
+    return `${API_BASE}/billing/invoice/${eventId}/pdf${inline ? '?inline=true' : ''}`;
   },
 
-  getEstimatePdfUrl(eventId: number): string {
-    return `${API_BASE}/billing/estimate/${eventId}/pdf`;
+  getEstimatePdfUrl(eventId: number, inline = false): string {
+    return `${API_BASE}/billing/estimate/${eventId}/pdf${inline ? '?inline=true' : ''}`;
+  },
+
+  async downloadPdfBlob(url: string): Promise<Blob> {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to download PDF document');
+    return res.blob();
   }
 };

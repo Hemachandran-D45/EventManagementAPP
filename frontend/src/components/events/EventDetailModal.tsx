@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   X, Phone, MessageSquare, Calendar, MapPin, CheckSquare,
-  Plus, Download, Share2, Trash2, TrendingUp, UserCheck, Tag, FileText
+  Plus, Download, Share2, Trash2, TrendingUp, UserCheck, Tag, FileText, Loader2
 } from 'lucide-react';
 import { Event, OrderStatus } from '../../types';
 import { api } from '../../services/api';
@@ -26,6 +26,70 @@ export const EventDetailModal: React.FC<Props> = ({ eventId, isOpen, onClose, on
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isExpenseOpen, setIsExpenseOpen] = useState(false);
   const [waTemplates, setWaTemplates] = useState<any>(null);
+  const [downloadingType, setDownloadingType] = useState<'invoice' | 'estimate' | null>(null);
+  const [sharingType, setSharingType] = useState<'invoice' | 'estimate' | null>(null);
+
+  const handleDownloadPdf = async (type: 'invoice' | 'estimate') => {
+    if (!event) return;
+    try {
+      setDownloadingType(type);
+      const url = type === 'invoice' ? api.getInvoicePdfUrl(event.id) : api.getEstimatePdfUrl(event.id);
+      const filename = `DD_Events_${type === 'invoice' ? 'Invoice' : 'Estimate'}_${event.id}_${(event.customer_name || 'Client').replace(/\s+/g, '_')}.pdf`;
+      
+      const blob = await api.downloadPdfBlob(url);
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
+    } catch (err) {
+      console.error('Download error:', err);
+      window.open(type === 'invoice' ? api.getInvoicePdfUrl(event.id) : api.getEstimatePdfUrl(event.id), '_blank');
+    } finally {
+      setDownloadingType(null);
+    }
+  };
+
+  const handleSharePdf = async (type: 'invoice' | 'estimate') => {
+    if (!event) return;
+    const template = type === 'invoice' ? waTemplates?.bill : waTemplates?.quotation;
+    const filename = `DD_Events_${type === 'invoice' ? 'Invoice' : 'Estimate'}_${event.id}_${(event.customer_name || 'Client').replace(/\s+/g, '_')}.pdf`;
+    
+    try {
+      setSharingType(type);
+      const url = type === 'invoice' ? api.getInvoicePdfUrl(event.id) : api.getEstimatePdfUrl(event.id);
+      const blob = await api.downloadPdfBlob(url);
+      const file = new File([blob], filename, { type: 'application/pdf' });
+
+      // Check if browser supports Web Share API with files (Android, iOS Safari, mobile PWA)
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: `DD Events ${type === 'invoice' ? 'Invoice' : 'Quotation'}`,
+          text: template?.text || `Official ${type} from DD Event Entertainment`,
+          files: [file]
+        });
+        return;
+      }
+
+      // If mobile file share not available, trigger file download and open WhatsApp link
+      await handleDownloadPdf(type);
+      if (template?.url) {
+        window.open(template.url, '_blank');
+      }
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        console.error('Share error:', err);
+        if (template?.url) {
+          window.open(template.url, '_blank');
+        }
+      }
+    } finally {
+      setSharingType(null);
+    }
+  };
 
   const fetchDetail = async () => {
     if (!eventId) return;
@@ -168,21 +232,25 @@ export const EventDetailModal: React.FC<Props> = ({ eventId, isOpen, onClose, on
               <div className="flex items-center justify-start sm:justify-end gap-2">
                 <a
                   href={`tel:${event.customer_phone}`}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-white font-semibold transition"
+                  className="flex items-center gap-1.5 px-3 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-white font-semibold transition text-xs"
                 >
                   <Phone className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Call</span>
                 </a>
-                {waTemplates?.confirmation?.url && (
-                  <a
-                    href={waTemplates.confirmation.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-white font-bold transition"
+                {waTemplates?.bill && (
+                  <button
+                    onClick={() => handleSharePdf('invoice')}
+                    disabled={sharingType === 'invoice'}
+                    className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 rounded-xl text-white font-bold transition text-xs shadow-md shadow-emerald-600/20"
+                    title="Send PDF bill directly to customer on WhatsApp"
                   >
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    <span>WhatsApp</span>
-                  </a>
+                    {sharingType === 'invoice' ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <MessageSquare className="w-3.5 h-3.5" />
+                    )}
+                    <span>Share Bill</span>
+                  </button>
                 )}
               </div>
             </div>
@@ -428,26 +496,33 @@ export const EventDetailModal: React.FC<Props> = ({ eventId, isOpen, onClose, on
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <a
-                        href={api.getEstimatePdfUrl(event.id)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-1.5 px-3 py-2 bg-slate-700/80 hover:bg-slate-600 text-white font-bold rounded-xl text-xs transition border border-slate-600"
-                        title="Download PDF Estimate (EST-...)"
+                      <button
+                        onClick={() => handleDownloadPdf('estimate')}
+                        disabled={downloadingType === 'estimate'}
+                        className="flex items-center gap-1.5 px-3 py-2 bg-slate-700/80 hover:bg-slate-600 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition border border-slate-600 shadow-sm"
+                        title="Download PDF Estimate directly to your device"
                       >
-                        <Download className="w-3.5 h-3.5" />
-                        <span>PDF Estimate</span>
-                      </a>
+                        {downloadingType === 'estimate' ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-400" />
+                        ) : (
+                          <Download className="w-3.5 h-3.5 text-blue-400" />
+                        )}
+                        <span>{downloadingType === 'estimate' ? 'Downloading...' : 'Download PDF'}</span>
+                      </button>
                       {waTemplates?.quotation && (
-                        <a
-                          href={waTemplates.quotation.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs transition shadow-md shadow-blue-600/20"
+                        <button
+                          onClick={() => handleSharePdf('estimate')}
+                          disabled={sharingType === 'estimate'}
+                          className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition shadow-md shadow-blue-600/20"
+                          title="Share quotation & PDF via WhatsApp"
                         >
-                          <Share2 className="w-3.5 h-3.5" />
-                          <span>WhatsApp Quotation</span>
-                        </a>
+                          {sharingType === 'estimate' ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Share2 className="w-3.5 h-3.5" />
+                          )}
+                          <span>{sharingType === 'estimate' ? 'Preparing PDF...' : 'WhatsApp Quotation'}</span>
+                        </button>
                       )}
                     </div>
                   </div>
@@ -475,26 +550,33 @@ export const EventDetailModal: React.FC<Props> = ({ eventId, isOpen, onClose, on
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <a
-                        href={api.getInvoicePdfUrl(event.id)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-1.5 px-3 py-2 bg-slate-700/80 hover:bg-slate-600 text-white font-bold rounded-xl text-xs transition border border-slate-600"
-                        title="Download PDF Invoice (INV-...)"
+                      <button
+                        onClick={() => handleDownloadPdf('invoice')}
+                        disabled={downloadingType === 'invoice'}
+                        className="flex items-center gap-1.5 px-3 py-2 bg-slate-700/80 hover:bg-slate-600 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition border border-slate-600 shadow-sm"
+                        title="Download official Tax Invoice PDF directly to your device"
                       >
-                        <Download className="w-3.5 h-3.5" />
-                        <span>PDF Invoice</span>
-                      </a>
+                        {downloadingType === 'invoice' ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+                        ) : (
+                          <Download className="w-3.5 h-3.5 text-emerald-400" />
+                        )}
+                        <span>{downloadingType === 'invoice' ? 'Downloading...' : 'Download PDF'}</span>
+                      </button>
                       {waTemplates?.bill && (
-                        <a
-                          href={waTemplates.bill.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition shadow-md shadow-emerald-600/20"
+                        <button
+                          onClick={() => handleSharePdf('invoice')}
+                          disabled={sharingType === 'invoice'}
+                          className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition shadow-md shadow-emerald-600/20"
+                          title="Share bill & PDF document via WhatsApp"
                         >
-                          <Share2 className="w-3.5 h-3.5" />
-                          <span>WhatsApp Bill</span>
-                        </a>
+                          {sharingType === 'invoice' ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Share2 className="w-3.5 h-3.5" />
+                          )}
+                          <span>{sharingType === 'invoice' ? 'Preparing PDF...' : 'Share Bill (PDF)'}</span>
+                        </button>
                       )}
                     </div>
                   </div>

@@ -1,6 +1,6 @@
 import urllib.parse
 
-def get_whatsapp_confirmation_text(event):
+def get_whatsapp_confirmation_text(event, pdf_url=None):
     services_list = "\n".join([f"• {s.service_name} (Rs. {s.agreed_price:,.0f})" for s in event.services])
     disc = getattr(event, 'discount', 0.0) or 0.0
 
@@ -19,6 +19,8 @@ def get_whatsapp_confirmation_text(event):
             f"💳 *Balance Pending:* Rs. {event.balance_due:,.0f}"
         )
 
+    pdf_block = f"📄 *Download Official PDF Receipt & Bill:*\n{pdf_url}\n------------------------------------\n" if pdf_url else ""
+
     text = (
         f"🎉 *DD EVENTS - BOOKING CONFIRMED* 🎉\n"
         f"_\"One Team • One Beat • One Passion\"_\n\n"
@@ -31,7 +33,8 @@ def get_whatsapp_confirmation_text(event):
         f"*Requested Services:*\n{services_list}\n\n"
         f"------------------------------------\n"
         f"{financials}\n"
-        f"------------------------------------\n\n"
+        f"------------------------------------\n"
+        f"{pdf_block}"
         f"💳 *UPI ID:* 9363316800@upi (GPay / PhonePe / Paytm)\n"
         f"📞 *Helpline / Updates:* +91 78680 80950 / +91 93633 16800\n\n"
         f"We are excited to deliver a high-energy, memorable event!\n"
@@ -39,7 +42,7 @@ def get_whatsapp_confirmation_text(event):
     )
     return text
 
-def get_whatsapp_bill_text(event):
+def get_whatsapp_bill_text(event, pdf_url=None):
     services_list = "\n".join([f"• {s.service_name} - Rs. {s.agreed_price:,.0f}" for s in event.services])
     disc = getattr(event, 'discount', 0.0) or 0.0
 
@@ -58,6 +61,8 @@ def get_whatsapp_bill_text(event):
             f"💳 *Balance Due:* Rs. {event.balance_due:,.0f}"
         )
 
+    pdf_block = f"📄 *Download Official PDF Tax Invoice / Bill:*\n{pdf_url}\n------------------------------------\n" if pdf_url else ""
+
     text = (
         f"🧾 *DD EVENTS & ENTERTAINMENT*\n"
         f"------------------------------------\n"
@@ -71,6 +76,7 @@ def get_whatsapp_bill_text(event):
         f"------------------------------------\n"
         f"{financials}\n"
         f"------------------------------------\n"
+        f"{pdf_block}"
         f"💳 *UPI ID:* 9363316800@upi (GPay / PhonePe / Paytm)\n"
         f"📞 *Contact:* +91 78680 80950 / +91 93633 16800\n"
         f"Thank you for choosing DD Events!\n"
@@ -111,7 +117,7 @@ def get_whatsapp_crew_text(event):
     )
     return text
 
-def get_whatsapp_quotation_text(event):
+def get_whatsapp_quotation_text(event, pdf_url=None):
     services_list = "\n".join([f"• {s.service_name} - Rs. {s.agreed_price:,.0f}" for s in event.services])
     disc = getattr(event, 'discount', 0.0) or 0.0
 
@@ -123,6 +129,8 @@ def get_whatsapp_quotation_text(event):
         )
     else:
         financials = f"💰 *Estimated Total Amount:* Rs. {event.total_amount:,.0f}"
+
+    pdf_block = f"📄 *View / Download Detailed PDF Estimate:*\n{pdf_url}\n------------------------------------\n" if pdf_url else ""
 
     text = (
         f"📋 *DD EVENTS - EVENT ESTIMATE & QUOTATION*\n"
@@ -138,6 +146,7 @@ def get_whatsapp_quotation_text(event):
         f"------------------------------------\n"
         f"{financials}\n"
         f"------------------------------------\n"
+        f"{pdf_block}"
         f"⚠️ *Please Note:*\n"
         f"This is a preliminary price estimate and not a confirmed booking. Dates, equipment & team availability are reserved on a first-come basis upon receipt of booking advance.\n\n"
         f"To confirm your booking and lock the date, please contact us:\n"
