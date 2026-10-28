@@ -1,0 +1,13 @@
+﻿services:
+  - type: web
+    name: event-business-manager
+    env: docker
+    plan: free
+    region: singapore
+    disk:
+      name: event-data
+      mountPath: /app/backend/data
+      sizeGB: 1
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:////app/backend/data/events.db
