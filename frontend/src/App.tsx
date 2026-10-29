@@ -12,6 +12,8 @@ import { CustomersPage } from './pages/CustomersPage';
 import { FinancePage } from './pages/FinancePage';
 import { SearchPage } from './pages/SearchPage';
 import { PublicHomePage } from './public/PublicHomePage';
+import { SecurityLockScreen } from './components/auth/SecurityLockScreen';
+import { api } from './services/api';
 
 const isWebsiteRoute = () => {
   const path = window.location.pathname.toLowerCase();
@@ -21,16 +23,23 @@ const isWebsiteRoute = () => {
 
 export const App: React.FC = () => {
   const [route, setRoute] = useState<'pwa' | 'website'>(() => (isWebsiteRoute() ? 'website' : 'pwa'));
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => api.isAuthenticated());
 
   useEffect(() => {
     const handleLocationChange = () => {
       setRoute(isWebsiteRoute() ? 'website' : 'pwa');
     };
+    const handleUnauthorized = () => {
+      setIsAuthenticated(false);
+    };
+
     window.addEventListener('popstate', handleLocationChange);
     window.addEventListener('hashchange', handleLocationChange);
+    window.addEventListener('app:unauthorized', handleUnauthorized);
     return () => {
       window.removeEventListener('popstate', handleLocationChange);
       window.removeEventListener('hashchange', handleLocationChange);
+      window.removeEventListener('app:unauthorized', handleUnauthorized);
     };
   }, []);
 
@@ -44,16 +53,47 @@ export const App: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
+  const navigateToWebsite = () => {
+    try {
+      window.history.pushState({}, '', '/website');
+    } catch {
+      window.location.hash = '#website';
+    }
+    setRoute('website');
+    window.scrollTo(0, 0);
+  };
+
   // Only render marketing website if explicitly requested via #website or /website
   if (route === 'website') {
     return <PublicHomePage onNavigatePortal={navigateToPwa} />;
   }
 
+  // Security gate: If not authenticated, require Owner Passcode
+  if (!isAuthenticated) {
+    return (
+      <SecurityLockScreen
+        onUnlocked={() => setIsAuthenticated(true)}
+        onNavigateWebsite={navigateToWebsite}
+      />
+    );
+  }
+
   // Root default (/) is 100% the pure Event Management PWA
-  return <PurePwaApp />;
+  return (
+    <PurePwaApp
+      onLock={() => {
+        api.logout();
+        setIsAuthenticated(false);
+      }}
+    />
+  );
 };
 
-const PurePwaApp: React.FC = () => {
+interface PurePwaProps {
+  onLock: () => void;
+}
+
+const PurePwaApp: React.FC<PurePwaProps> = ({ onLock }) => {
   const [currentTab, setCurrentTab] = useState<NavTab>('dashboard');
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -74,6 +114,7 @@ const PurePwaApp: React.FC = () => {
         onOpenQuickAdd={() => setIsQuickAddOpen(true)}
         onOpenSearch={() => setIsSearchOpen(true)}
         onOpenInstallModal={() => setIsInstallOpen(true)}
+        onLock={onLock}
       />
 
       {/* Main Content Area */}

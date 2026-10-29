@@ -1,13 +1,14 @@
 import React from 'react';
-import { Search, Plus, Smartphone } from 'lucide-react';
+import { Search, Plus, Smartphone, Lock } from 'lucide-react';
 
 interface Props {
   onOpenQuickAdd: () => void;
   onOpenSearch: () => void;
   onOpenInstallModal: () => void;
+  onLock?: () => void;
 }
 
-export const Header: React.FC<Props> = ({ onOpenQuickAdd, onOpenSearch, onOpenInstallModal }) => {
+export const Header: React.FC<Props> = ({ onOpenQuickAdd, onOpenSearch, onOpenInstallModal, onLock }) => {
   return (
     <header className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-lg border-b border-slate-800/80 px-4 sm:px-6 py-3.5 shadow-sm">
       <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
@@ -33,6 +34,16 @@ export const Header: React.FC<Props> = ({ onOpenQuickAdd, onOpenSearch, onOpenIn
 
         {/* Header Actions */}
         <div className="flex items-center gap-2 sm:gap-2.5">
+          {onLock && (
+            <button
+              onClick={onLock}
+              className="p-2 sm:p-2.5 text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/50 rounded-xl border border-rose-800/50 transition shadow-sm"
+              title="Lock System (Owner Passcode Protection)"
+            >
+              <Lock className="w-4 h-4 stroke-[2.2]" />
+            </button>
+          )}
+
           <button
             onClick={onOpenInstallModal}
             className="p-2 sm:p-2.5 text-slate-400 hover:text-white bg-slate-800/70 hover:bg-slate-700/80 rounded-xl border border-slate-700/60 transition shadow-sm"
