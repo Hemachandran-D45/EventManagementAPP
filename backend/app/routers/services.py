@@ -47,3 +47,10 @@ def delete_service(service_id: int, db: Session = Depends(get_db)):
     srv.active = False
     db.commit()
     return {"message": "Service removed from catalog", "id": service_id}
+
+@router.post("/sync-official")
+def sync_official_catalog(db: Session = Depends(get_db)):
+    from app.services.seed_data import seed_initial_data
+    seed_initial_data(db)
+    return {"message": "Service catalog successfully synchronized to official rate card"}
+
